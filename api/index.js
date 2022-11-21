@@ -11,6 +11,7 @@ const app = express();
 // body parser
 app.use(bodyParser.json());
 
+// Client-creditals-grant
 function getUserPlaylists(accessToken, userId) {
   if (!accessToken || !userId) {
     return Promise.resolve(null);
@@ -33,12 +34,14 @@ function getUserPlaylists(accessToken, userId) {
   });
 }
 
+// JWT
 app.post("/api/auth/token", function(req, res) {
   const { email, username, name } = req.body;
   const token = jwt.sign({ sub: username, email, name }, config.authJwtSecret);
   res.json({ access_token: token });
 });
 
+// JWT
 app.get("/api/auth/verify", function(req, res, next) {
   const { access_token } = req.query;
 
@@ -50,6 +53,7 @@ app.get("/api/auth/verify", function(req, res, next) {
   }
 });
 
+// Client-creditals-grant
 app.get("/api/playlists", async function(req, res, next) {
   const { userId } = req.query;
 
@@ -67,11 +71,13 @@ app.get("/api/playlists", async function(req, res, next) {
     json: true
   };
 
+  // Peticion interna
   request.post(authOptions, async function(error, response, body) {
     if (error || response.statusCode !== 200) {
       next(error);
     }
 
+    // No se almacena el token, cada llamado adquiere un nuevo token
     const accessToken = body.access_token;
     const userPlaylists = await getUserPlaylists(accessToken, userId);
     res.json({ playlists: userPlaylists });
